@@ -1,5 +1,6 @@
 # from bs4 import BeautifulSoup
 import requests
+import threading
 from flask import Flask, render_template, request, jsonify
 from multiprocessing.pool import ThreadPool
 
@@ -32,47 +33,54 @@ def index():
 
 @app.route("/query")
 def query():
-    result = ""
+    result = []
+    threads = []
     with open("setting.txt", "r") as f:
         hkStockList = f.readline().split(":")[1].replace('\n', '').split(";")
         for hkStock in hkStockList:
-            tmp = requests.get('https://hq.sinajs.cn/list=hk' + hkStock).text
-            if '""' in tmp or "FAILED" in tmp:
-                continue
-            tmp = tmp.split('"')[1].split(',')
-            result += '<div class="line"><span class="stock">' + \
-                tmp[1] + '</span><span class="price">' + \
-                tmp[6][0:-1] + '</span><span class="diff">' + \
-                str(round(float(tmp[7]) * 100 /
-                          float(tmp[3]), 2)) + '%</span></div>'
+            t = threading.Thread(target=queryHK, args=(hkStock, result))
+            threads.append(t)
+            t.start()
 
         chStockList = f.readline().split(":")[1].split(";")
-        for hkStock in chStockList:
-            tmp = requests.get('https://hq.sinajs.cn/list=s_sh' + hkStock).text
-            if '""' in tmp or "FAILED" in tmp:
-                tmp = requests.get(
-                    'https://hq.sinajs.cn/list=s_sz' + hkStock).text
-                if '""' in tmp or "FAILED" in tmp:
-                    continue
-            tmp = tmp.split('"')[1].split(',')
-            result += '<div class="line"><span class="stock">' + \
-                tmp[0] + '</span><span class="price">' + \
-                tmp[1][0:-1] + '</span><span class="diff">' + \
-                tmp[3] + '%</span></div>'
+        for cnStock in chStockList:
+            t = threading.Thread(target=queryCN, args=(cnStock, result))
+            threads.append(t)
+            t.start()
 
-    return result
+    for t in threads:
+        t.join()
+
+    # print(result)
+    result.sort()
+    return "".join(result)
 
 
-def queryHK(code):
+def queryHK(code, result):
     tmp = requests.get('https://hq.sinajs.cn/list=hk' + code).text
     if '""' in tmp or "FAILED" in tmp:
         return
     tmp = tmp.split('"')[1].split(',')
-    return '<div class="line"><span class="stock">' + \
-        tmp[1] + '</span><span class="price">' + \
-        tmp[6][0:-1] + '</span><span class="diff">' + \
-        str(round(float(tmp[7]) * 100 /
-                  float(tmp[3]), 2)) + '%</span></div>'
+    result.append('<div class="line"><span class="stock">' +
+                  tmp[1] + '</span><span class="price">' +
+                  tmp[6][0:-1] + '</span><span class="diff">' +
+                  str(round(float(tmp[7]) * 100 /
+                            float(tmp[3]), 2)) + '%</span></div>')
+
+
+def queryCN(code, result):
+    if code[0] == "6":
+        tmp = requests.get('https://hq.sinajs.cn/list=s_sh' + code).text
+    else:
+        tmp = requests.get('https://hq.sinajs.cn/list=s_sz' + code).text
+
+    if '""' in tmp or "FAILED" in tmp:
+        return
+    tmp = tmp.split('"')[1].split(',')
+    result.append('<div class="line"><span class="stock">' +
+                  tmp[0] + '</span><span class="price">' +
+                  tmp[1][0:-1] + '</span><span class="diff">' +
+                  tmp[3] + '%</span></div>')
 
 
 if __name__ == "__main__":
