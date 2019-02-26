@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>SQuery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
+    <!-- <script src="main.js"></script> -->
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+    <style>
+        .my-button {
+            background-color: gray;
+            border: none;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            width: 100px;
+            height: 30px;
+            line-height: 30px;
+        }
+
+        .stock {
+            width: 120px;
+            display: inline-block;
+        }
+
+        .price {
+            width: 100px;
+            display: inline-block;
+        }
+
+        .diff {
+            width: 100px;
+            display: inline-block;
+        }
+    </style>
+    <script>
+        function gotoSetting() {
+            pause();
+            window.location.href = "";
+        }
+
+        function query() {
+            $.ajax({
+                url: "query",
+                success: function (result) {
+                    document.getElementById("data").innerHTML = result
+                }
+            });
+        }
+
+        var id;
+
+        function start() {
+            id = setInterval(query, 1000);
+        }
+
+        function pause() {
+            clearInterval(id);
+            // if (id !== undefined) {
+            //     clearInterval(id);
+            //     id = undefined;
+            // }
+        }
+
+    </script>
+</head>
+
+<body>
+    <div class="my-button" onclick="gotoSetting()">Settings</div>
+    <div class="my-button" onclick="start()">Start</div>
+    <div class="my-button" onclick="pause()">Pause</div>
+    <div id="data"></div>
+</body>
+
+</html>

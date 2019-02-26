@@ -1,26 +1,50 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>设置</title>
+	<title>Setting</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css"> -->
 	<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
 
 	<script>
 		function submit() {
-			// console.log(document.getElementById("hkStockList"));
-			$.post("setting", { "hkStockList": document.getElementById("hkStockList").value });
+			$.ajax({
+				type: "POST",
+				url: "setting",
+				data: { "hkStockList": document.getElementById("hkStockList").value, "chStockList": document.getElementById("chStockList").value },
+				success: function () {
+					window.location.href = "setting";
+				}
+			});
 		}
 	</script>
+
+	<style>
+		.my-button {
+			background-color: gray;
+			border: none;
+			color: white;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			width: 100px;
+			height: 30px;
+			line-height: 30px;
+		}
+	</style>
 	<!-- <script src="main.js"></script> -->
 </head>
+
 <body>
-	<div onclick="submit()">确定</div>
-	<div>香港:</div>
-	<textarea id="hkStockList" style="height:200px;"></textarea>
-	<div>大陆:</div>
-	<textarea id="chStockList" style="height:200px;"></textarea>
+	<div class="my-button" onclick="submit()">Confirm</div>
+	<div>HK:</div>
+	<textarea id="hkStockList" style="height:200px;">{{ hkStockList }}</textarea>
+	<div>CN:</div>
+	<textarea id="chStockList" style="height:200px;">{{ chStockList }}</textarea>
 </body>
+
 </html>

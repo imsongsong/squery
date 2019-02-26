@@ -1,0 +1,27 @@
+.my-button{
+    background-color: gray;
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 100px;
+    height: 30px;
+    line-height: 30px;
+}
+
+.stock {
+    width: 120px;
+    display: inline-block;
+}
+
+.price {
+    width: 100px;
+    display: inline-block;
+}
+
+.diff {
+    width: 100px;
+    display: inline-block;
+}

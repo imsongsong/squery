@@ -1,1 +1,2 @@
-Woops! I have deleted the content!
+hkStockList:00700;01810;06865;06886;
+chStockList:601318;002439;603517;601166;601865
