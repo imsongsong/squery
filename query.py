@@ -69,10 +69,10 @@ def queryHK(code, result):
 
 
 def queryCN(code, result):
-    if code[0] == "6":
-        tmp = requests.get('https://hq.sinajs.cn/list=s_sh' + code).text
-    else:
+    if code[0] == "3":
         tmp = requests.get('https://hq.sinajs.cn/list=s_sz' + code).text
+    else:
+        tmp = requests.get('https://hq.sinajs.cn/list=s_sh' + code).text
 
     if '""' in tmp or "FAILED" in tmp:
         return
