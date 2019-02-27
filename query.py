@@ -6,6 +6,7 @@ from multiprocessing.pool import ThreadPool
 
 
 app = Flask(__name__)
+lineFormat = '<div class="line"><span class="stock">{}</span><span class="price">{}</span><span class="diff">{}%</span></div>'
 
 
 @app.route("/setting", methods=['GET', 'POST'])
@@ -51,7 +52,6 @@ def query():
     for t in threads:
         t.join()
 
-    # print(result)
     result.sort()
     return "".join(result)
 
@@ -61,11 +61,8 @@ def queryHK(code, result):
     if '""' in tmp or "FAILED" in tmp:
         return
     tmp = tmp.split('"')[1].split(',')
-    result.append('<div class="line"><span class="stock">' +
-                  tmp[1] + '</span><span class="price">' +
-                  tmp[6][0:-1] + '</span><span class="diff">' +
-                  str(round(float(tmp[7]) * 100 /
-                            float(tmp[3]), 2)) + '%</span></div>')
+    result.append(lineFormat.format(
+        tmp[1], tmp[6][0:-1], str(round(float(tmp[7]) * 100 / float(tmp[3]), 2))))
 
 
 def queryCN(code, result):
@@ -77,12 +74,8 @@ def queryCN(code, result):
     if '""' in tmp or "FAILED" in tmp:
         return
     tmp = tmp.split('"')[1].split(',')
-    result.append('<div class="line"><span class="stock">' +
-                  tmp[0] + '</span><span class="price">' +
-                  tmp[1][0:-1] + '</span><span class="diff">' +
-                  tmp[3] + '%</span></div>')
+    result.append(lineFormat.format(tmp[0], tmp[1][0:-1], tmp[3]))
 
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
-    # app.run()
