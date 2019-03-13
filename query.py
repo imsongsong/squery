@@ -57,11 +57,12 @@ def query():
         print(tmp)
         if idx < len(chStockList):
             tmp = tmp.split('"')[1].split(',')
-            result.append(lineFormat.format(tmp[0], tmp[1][0:-1], tmp[3]))
+            result.append(lineFormat.format(
+                tmp[0]+codeList[idx], tmp[1][0:-1], tmp[3]))
         else:
             tmp = tmp.split('"')[1].split(',')
             result.append(lineFormat.format(
-                tmp[1], tmp[6][0:-1], str(round(float(tmp[7]) * 100 / float(tmp[3]), 2))))
+                tmp[1]+codeList[idx], tmp[6][0:-1], str(round(float(tmp[7]) * 100 / float(tmp[3]), 2))))
 
     return "".join(result)
 
