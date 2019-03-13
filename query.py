@@ -36,9 +36,14 @@ def index():
 def query():
     result = []
     codeList = []
+    zhishuList = ['000001']
+    for zhishu in zhishuList:
+        codeList.append('s_sh' + zhishu)
+
     with open("setting.txt", "r") as f:
         hkStockList = f.readline().split(":")[1].replace('\n', '').split(";")
         chStockList = f.readline().split(":")[1].split(";")
+
         for cnStock in chStockList:
             if cnStock[0] == "3" or cnStock[0] == "0":
                 codeList.append('s_sz' + cnStock)
@@ -48,21 +53,22 @@ def query():
         for hkStock in hkStockList:
             codeList.append('hk' + hkStock)
 
+    print(','.join(codeList))
     tmpResult = requests.get(
         'https://hq.sinajs.cn/list=' + ','.join(codeList)).text
+    print(tmpResult)
 
     for idx, tmp in enumerate(tmpResult.split('\n')):
         if '""' in tmp or "FAILED" in tmp or "" == tmp:
             continue
-        print(tmp)
-        if idx < len(chStockList):
+        if idx < len(zhishuList) + len(chStockList):
             tmp = tmp.split('"')[1].split(',')
             result.append(lineFormat.format(
-                tmp[0], chStockList[idx], round(float(tmp[1]), 2), tmp[3]))
+                tmp[0], chStockList[idx-len(zhishuList)], round(float(tmp[1]), 2), tmp[3]))
         else:
             tmp = tmp.split('"')[1].split(',')
             result.append(lineFormat.format(
-                tmp[1], hkStockList[idx-len(chStockList)], tmp[6][0:-1], str(round(float(tmp[7]) * 100 / float(tmp[3]), 2))))
+                tmp[1], hkStockList[idx-len(zhishuList)-len(chStockList)], tmp[6][0:-1], str(round(float(tmp[7]) * 100 / float(tmp[3]), 2))))
 
     return "".join(result)
 
