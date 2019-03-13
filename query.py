@@ -6,7 +6,7 @@ from multiprocessing.pool import ThreadPool
 
 
 app = Flask(__name__)
-lineFormat = '<div class="line"><span class="stock">{}</span><span class="price">{}</span><span class="diff">{}%</span></div>'
+lineFormat = '<div class="line"><span class="stock">{}</span><span class="code">{}</span><span class="price">{}</span><span class="diff">{}%</span></div>'
 
 
 @app.route("/setting", methods=['GET', 'POST'])
@@ -58,11 +58,11 @@ def query():
         if idx < len(chStockList):
             tmp = tmp.split('"')[1].split(',')
             result.append(lineFormat.format(
-                tmp[0]+codeList[idx], tmp[1][0:-1], tmp[3]))
+                tmp[0], chStockList[idx], round(float(tmp[1]), 2), tmp[3]))
         else:
             tmp = tmp.split('"')[1].split(',')
             result.append(lineFormat.format(
-                tmp[1]+codeList[idx], tmp[6][0:-1], str(round(float(tmp[7]) * 100 / float(tmp[3]), 2))))
+                tmp[1], hkStockList[idx-len(chStockList)], tmp[6][0:-1], str(round(float(tmp[7]) * 100 / float(tmp[3]), 2))))
 
     return "".join(result)
 
