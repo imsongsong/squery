@@ -35,46 +35,35 @@ def index():
 @app.route("/query")
 def query():
     result = []
-    threads = []
+    codeList = []
     with open("setting.txt", "r") as f:
         hkStockList = f.readline().split(":")[1].replace('\n', '').split(";")
-        for hkStock in hkStockList:
-            t = threading.Thread(target=queryHK, args=(hkStock, result))
-            threads.append(t)
-            t.start()
-
         chStockList = f.readline().split(":")[1].split(";")
         for cnStock in chStockList:
-            t = threading.Thread(target=queryCN, args=(cnStock, result))
-            threads.append(t)
-            t.start()
+            if cnStock[0] == "3" or cnStock[0] == "0":
+                codeList.append('s_sz' + cnStock)
+            else:
+                codeList.append('s_sh' + cnStock)
 
-    for t in threads:
-        t.join()
+        for hkStock in hkStockList:
+            codeList.append('hk' + hkStock)
 
-    result.sort()
+    tmpResult = requests.get(
+        'https://hq.sinajs.cn/list=' + ','.join(codeList)).text
+
+    for idx, tmp in enumerate(tmpResult.split('\n')):
+        if '""' in tmp or "FAILED" in tmp or "" == tmp:
+            continue
+        print(tmp)
+        if idx < len(chStockList):
+            tmp = tmp.split('"')[1].split(',')
+            result.append(lineFormat.format(tmp[0], tmp[1][0:-1], tmp[3]))
+        else:
+            tmp = tmp.split('"')[1].split(',')
+            result.append(lineFormat.format(
+                tmp[1], tmp[6][0:-1], str(round(float(tmp[7]) * 100 / float(tmp[3]), 2))))
+
     return "".join(result)
-
-
-def queryHK(code, result):
-    tmp = requests.get('https://hq.sinajs.cn/list=hk' + code).text
-    if '""' in tmp or "FAILED" in tmp:
-        return
-    tmp = tmp.split('"')[1].split(',')
-    result.append(lineFormat.format(
-        tmp[1], tmp[6][0:-1], str(round(float(tmp[7]) * 100 / float(tmp[3]), 2))))
-
-
-def queryCN(code, result):
-    if code[0] == "3":
-        tmp = requests.get('https://hq.sinajs.cn/list=s_sz' + code).text
-    else:
-        tmp = requests.get('https://hq.sinajs.cn/list=s_sh' + code).text
-
-    if '""' in tmp or "FAILED" in tmp:
-        return
-    tmp = tmp.split('"')[1].split(',')
-    result.append(lineFormat.format(tmp[0], tmp[1][0:-1], tmp[3]))
 
 
 if __name__ == "__main__":
